@@ -7,7 +7,7 @@ conf = SparkConf().setAppName("log_analyzer").setMaster("local")
 sc = SparkContext(conf=conf)
 
 input_text_file=sys.argv[1]
-input_text_file_2=sys.argv[2]
+# input_text_file_2=sys.argv[2]
 #chmod +x log_analyzer
 #./log_analyzer /home/jenkin/hadoop/spark/Assignment-2/Log/iliad /home/jenkin/hadoop/spark/Assignment-2/Log/odyssey
 #./log_analyzer hdfs://localhost:9000/user/jenkin/Log/iliad hdfs://localhost:9000/user/jenkin/Log/odyssey
@@ -16,15 +16,52 @@ input_text_file_2=sys.argv[2]
 #hdfs://localhost:9000/Log/odyssey
 
 #./log_analyzer Log/iliad Log/odyssey
+1-2
+# lines = sc.textFile(input_text_file)
+# cc = lines.count()
+# print(cc)
+# c = lines.filter(lambda x:x.find("Starting")!=-1 and x.find("Session")!=-1 and x.find("achille")!=-1).count()
+# print(c)
 
+# lines = sc.textFile(input_text_file_2)
+# cc = lines.count()
+# print(cc)
+# c = lines.filter(lambda x:x.find("Starting")!=-1 and x.find("Session")!=-1 and x.find("achille")!=-1).count()
+# print(c)
+3
+# lines = sc.textFile(input_text_file)
+# cc = lines.count()
+# print(cc)
+# c = lines.filter(lambda x:x.find("Starting")!=-1 and x.find("Session")!=-1).collect()
+# userset = set()
+# for user in c:
+#     a = user.split('user')
+#     if len(a) > 1:
+#         name = a[1].encode('ascii')
+#         userset.add(name[1:len(name)-1])
+# print list(userset)
+
+4
 lines = sc.textFile(input_text_file)
-cc = lines.count()
-print(cc)
-c = lines.filter(lambda x:x.find("Starting")!=-1 and x.find("Session")!=-1 and x.find("achille")!=-1).count()
-print(c)
+# cc = lines.count()
+# print(cc)
+c = lines.filter(lambda x:x.find("Starting")!=-1 and x.find("Session")!=-1).collect()
+userlist = list()
+userset = list()
+usermap = dict()
 
-lines = sc.textFile(input_text_file_2)
-cc = lines.count()
-print(cc)
-c = lines.filter(lambda x:x.find("Starting")!=-1 and x.find("Session")!=-1 and x.find("achille")!=-1).count()
-print(c)
+for user in c:
+    a = user.split('user')
+    if len(a) > 1:
+        name = a[1].encode('ascii')
+        name = name[1:len(name)-1]
+        # if usermap.get(name) == None:
+        #     usermap.update({name: 1})
+        # else:
+        #     usermap.update({name: usermap.get(name)+1})
+        # userlist.append({name:1})
+        userset.append((name, 1))
+from operator import add
+rdd = sc.parallelize(userset)
+print rdd.reduceByKey(add).collect()
+# print usermap
