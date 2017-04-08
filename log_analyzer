@@ -63,5 +63,50 @@ for user in c:
         userset.append((name, 1))
 from operator import add
 rdd = sc.parallelize(userset)
-print rdd.reduceByKey(add).collect()
-# print usermap
+# print rdd.reduceByKey(add).collect()
+# # print usermap
+
+5
+lines = sc.textFile(input_text_file)
+# cc = lines.count()
+# print(cc)
+c = lines.filter(lambda x:x.lower().find("error")!=-1)
+print c.count()
+
+6
+lines = sc.textFile(input_text_file)
+# cc = lines.count()
+# print(cc)
+c = lines.filter(lambda x:x.lower().find("error")!=-1).collect()
+import ntpath
+filename = ntpath.basename(input_text_file)
+
+userlist = list()
+userset = list()
+usermap = dict()
+
+for user in c:
+    a = user.split(filename)
+    if len(a) > 1:
+        name = a[1].encode('ascii')
+        name = name[1:len(name)]
+        # if usermap.get(name) == None:
+        #     usermap.update({name: 1})
+        # else:
+        #     usermap.update({name: usermap.get(name)+1})
+        # userset.append({name:1})
+        userlist.append((name, 1))
+from operator import add
+rdd = sc.parallelize(userlist)
+error = rdd.reduceByKey(add).collect()
+import operator
+error = sorted(error, key=lambda x: x[1], reverse=True)
+print '+',filename
+i = 0
+for e in error:
+    i=i+1
+    print ' -', (e[1], e[0])
+    if i==5:
+        break
+
+
