@@ -41,72 +41,129 @@ input_text_file=sys.argv[1]
 #         userset.add(name[1:len(name)-1])
 # print list(userset)
 
-4
-lines = sc.textFile(input_text_file)
-# cc = lines.count()
-# print(cc)
-c = lines.filter(lambda x:x.find("Starting")!=-1 and x.find("Session")!=-1).collect()
-userlist = list()
-userset = list()
-usermap = dict()
+# 4
+# lines = sc.textFile(input_text_file)
+# # cc = lines.count()
+# # print(cc)
+# c = lines.filter(lambda x:x.find("Starting")!=-1 and x.find("Session")!=-1).collect()
+# userlist = list()
+# userset = list()
+# usermap = dict()
 
+# for user in c:
+#     a = user.split('user')
+#     if len(a) > 1:
+#         name = a[1].encode('ascii')
+#         name = name[1:len(name)-1]
+#         # if usermap.get(name) == None:
+#         #     usermap.update({name: 1})
+#         # else:
+#         #     usermap.update({name: usermap.get(name)+1})
+#         # userlist.append({name:1})
+#         userset.append((name, 1))
+# from operator import add
+# rdd = sc.parallelize(userset)
+# # print rdd.reduceByKey(add).collect()
+# # # print usermap
+
+# 5
+# lines = sc.textFile(input_text_file)
+# # cc = lines.count()
+# # print(cc)
+# c = lines.filter(lambda x:x.lower().find("error")!=-1)
+# print c.count()
+
+# 6
+# lines = sc.textFile(input_text_file)
+# # cc = lines.count()
+# # print(cc)
+# c = lines.filter(lambda x:x.lower().find("error")!=-1).collect()
+# import ntpath
+# filename = ntpath.basename(input_text_file)
+
+# userlist = list()
+# userset = list()
+# usermap = dict()
+
+# for user in c:
+#     a = user.split(filename)
+#     if len(a) > 1:
+#         name = a[1].encode('ascii')
+#         name = name[1:len(name)]
+#         # if usermap.get(name) == None:
+#         #     usermap.update({name: 1})
+#         # else:
+#         #     usermap.update({name: usermap.get(name)+1})
+#         # userset.append({name:1})
+#         userlist.append((name, 1))
+# from operator import add
+# rdd = sc.parallelize(userlist)
+# error = rdd.reduceByKey(add).collect()
+# import operator
+# error = sorted(error, key=lambda x: x[1], reverse=True)
+# print '+',filename
+# i = 0
+# for e in error:
+#     i=i+1
+#     print ' -', (e[1], e[0])
+#     if i==5:
+#         break
+
+
+9
+lines = sc.textFile(input_text_file)
+
+cc = lines.count()
+print(cc)
+c = lines.filter(lambda x:x.find("Starting")!=-1 and x.find("Session")!=-1).collect()
+userset = set()
 for user in c:
     a = user.split('user')
     if len(a) > 1:
         name = a[1].encode('ascii')
-        name = name[1:len(name)-1]
-        # if usermap.get(name) == None:
-        #     usermap.update({name: 1})
-        # else:
-        #     usermap.update({name: usermap.get(name)+1})
-        # userlist.append({name:1})
-        userset.append((name, 1))
-from operator import add
-rdd = sc.parallelize(userset)
-# print rdd.reduceByKey(add).collect()
-# # print usermap
+        userset.add(name[1:len(name)-1])
 
-5
-lines = sc.textFile(input_text_file)
-# cc = lines.count()
-# print(cc)
-c = lines.filter(lambda x:x.lower().find("error")!=-1)
-print c.count()
 
-6
-lines = sc.textFile(input_text_file)
-# cc = lines.count()
-# print(cc)
-c = lines.filter(lambda x:x.lower().find("error")!=-1).collect()
-import ntpath
-filename = ntpath.basename(input_text_file)
 
-userlist = list()
-userset = list()
-usermap = dict()
-
-for user in c:
-    a = user.split(filename)
-    if len(a) > 1:
-        name = a[1].encode('ascii')
-        name = name[1:len(name)]
-        # if usermap.get(name) == None:
-        #     usermap.update({name: 1})
-        # else:
-        #     usermap.update({name: usermap.get(name)+1})
-        # userset.append({name:1})
-        userlist.append((name, 1))
-from operator import add
-rdd = sc.parallelize(userlist)
-error = rdd.reduceByKey(add).collect()
-import operator
-error = sorted(error, key=lambda x: x[1], reverse=True)
-print '+',filename
+userset = sorted(userset)
+orderlist = list()
+orderdict = dict()
 i = 0
-for e in error:
-    i=i+1
-    print ' -', (e[1], e[0])
-    if i==5:
-        break
+for name in userset:
+    orderdict.update({name: 'user-'+str(len(orderdict))})
+    orderlist.append((name, 'user-'+str(i)))
+    i = i+1
+print list(userset)
+print orderdict#sorted(orderdict)
 
 
+
+rdd = sc.parallelize(orderlist)
+print rdd.collect()
+
+def replaceLine(l):
+    # for l in lines.collect():
+        for key in orderlist:
+            # print l
+            r = l.replace(key[0], key[1])
+            # print l
+            # from fileinput import os
+            # from pyspark import SparkFiles
+            if r != l:
+                return r
+        return l
+            #     with open(os.path.join("output"), "a") as file1:
+            #         file1.write(l)
+
+# lines.saveAsNewAPIHadoopFile('output')
+# lines.foreach(replaceLine)
+newlines = lines.map(replaceLine)
+
+
+newlines.saveAsTextFile('output')
+
+
+
+# newset = set()
+# rdd.foreach(lambda x:newset.add((x)))#, orderdict.get(x))))
+# print list(newset)
