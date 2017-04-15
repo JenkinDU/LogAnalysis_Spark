@@ -1,169 +1,204 @@
 #!/usr/bin/env python
 
 import sys
+import ntpath
+from operator import add
 from pyspark import SparkContext, SparkConf
 
 conf = SparkConf().setAppName("log_analyzer").setMaster("local")
 sc = SparkContext(conf=conf)
 
-input_text_file=sys.argv[1]
-# input_text_file_2=sys.argv[2]
+question = sys.argv[2]
+input_text_file=sys.argv[3]
+input_text_file_2=sys.argv[4]
 #chmod +x log_analyzer
-#./log_analyzer /home/jenkin/hadoop/spark/Assignment-2/Log/iliad /home/jenkin/hadoop/spark/Assignment-2/Log/odyssey
-#./log_analyzer hdfs://localhost:9000/user/jenkin/Log/iliad hdfs://localhost:9000/user/jenkin/Log/odyssey
 
-#hdfs://localhost:9000/Log/iliad
-#hdfs://localhost:9000/Log/odyssey
+def question1(f):
+    lines = sc.textFile(f)
+    cc = lines.count()
+    print(" + "+ntpath.basename(f)+": "+str(cc))
 
-#./log_analyzer Log/iliad Log/odyssey
-1-2
-# lines = sc.textFile(input_text_file)
-# cc = lines.count()
-# print(cc)
-# c = lines.filter(lambda x:x.find("Starting")!=-1 and x.find("Session")!=-1 and x.find("achille")!=-1).count()
-# print(c)
+def question2(f):
+    lines = sc.textFile(f)
+    rdd = lines.filter(lambda x:x.find("Starting")!=-1 and x.find("Session")!=-1 and x.find("achille")!=-1)
+    c = rdd.count()
+    print(" + "+ntpath.basename(f)+": "+str(c))
 
-# lines = sc.textFile(input_text_file_2)
-# cc = lines.count()
-# print(cc)
-# c = lines.filter(lambda x:x.find("Starting")!=-1 and x.find("Session")!=-1 and x.find("achille")!=-1).count()
-# print(c)
-3
-# lines = sc.textFile(input_text_file)
-# cc = lines.count()
-# print(cc)
-# c = lines.filter(lambda x:x.find("Starting")!=-1 and x.find("Session")!=-1).collect()
-# userset = set()
-# for user in c:
-#     a = user.split('user')
-#     if len(a) > 1:
-#         name = a[1].encode('ascii')
-#         userset.add(name[1:len(name)-1])
-# print list(userset)
+def question3(f, show=True):
+    lines = sc.textFile(f)
+    c = lines.filter(lambda x:x.find("Starting")!=-1 and x.find("Session")!=-1).collect()
+    userset = set()
+    for user in c:
+        a = user.split('user')
+        if len(a) > 1:
+            name = a[1].encode('ascii')
+            userset.add(name[1:len(name)-1])
+    if(show):
+        print(" + "+ntpath.basename(f)+": "+str(list(userset)))
+    return userset
 
-# 4
-# lines = sc.textFile(input_text_file)
-# # cc = lines.count()
-# # print(cc)
-# c = lines.filter(lambda x:x.find("Starting")!=-1 and x.find("Session")!=-1).collect()
-# userlist = list()
-# userset = list()
-# usermap = dict()
+def question4(f):
+    lines = sc.textFile(f)
+    c = lines.filter(lambda x:x.find("Starting")!=-1 and x.find("Session")!=-1).collect()
+    userset = list()
 
-# for user in c:
-#     a = user.split('user')
-#     if len(a) > 1:
-#         name = a[1].encode('ascii')
-#         name = name[1:len(name)-1]
-#         # if usermap.get(name) == None:
-#         #     usermap.update({name: 1})
-#         # else:
-#         #     usermap.update({name: usermap.get(name)+1})
-#         # userlist.append({name:1})
-#         userset.append((name, 1))
-# from operator import add
-# rdd = sc.parallelize(userset)
-# # print rdd.reduceByKey(add).collect()
-# # # print usermap
+    for user in c:
+        a = user.split('user')
+        if len(a) > 1:
+            name = a[1].encode('ascii')
+            name = name[1:len(name)-1]
+            userset.append((name, 1))
 
-# 5
-# lines = sc.textFile(input_text_file)
-# # cc = lines.count()
-# # print(cc)
-# c = lines.filter(lambda x:x.lower().find("error")!=-1)
-# print c.count()
+    rdd = sc.parallelize(userset)
+    print " + "+ntpath.basename(f)+": "+str(rdd.reduceByKey(add).collect())
 
-# 6
-# lines = sc.textFile(input_text_file)
-# # cc = lines.count()
-# # print(cc)
-# c = lines.filter(lambda x:x.lower().find("error")!=-1).collect()
-# import ntpath
-# filename = ntpath.basename(input_text_file)
+def question5(f):
+    lines = sc.textFile(f)
+    c = lines.filter(lambda x:x.lower().find("error")!=-1)
+    print " + "+ntpath.basename(f)+": "+str(c.count())
 
-# userlist = list()
-# userset = list()
-# usermap = dict()
+def question6(f):
+    lines = sc.textFile(f)
+    c = lines.filter(lambda x:x.lower().find("error")!=-1).collect()
 
-# for user in c:
-#     a = user.split(filename)
-#     if len(a) > 1:
-#         name = a[1].encode('ascii')
-#         name = name[1:len(name)]
-#         # if usermap.get(name) == None:
-#         #     usermap.update({name: 1})
-#         # else:
-#         #     usermap.update({name: usermap.get(name)+1})
-#         # userset.append({name:1})
-#         userlist.append((name, 1))
-# from operator import add
-# rdd = sc.parallelize(userlist)
-# error = rdd.reduceByKey(add).collect()
-# import operator
-# error = sorted(error, key=lambda x: x[1], reverse=True)
-# print '+',filename
-# i = 0
-# for e in error:
-#     i=i+1
-#     print ' -', (e[1], e[0])
-#     if i==5:
-#         break
+    userlist = list()
+    print("  + "+ntpath.basename(f)+": ")
+    for user in c:
+        a = user.split(ntpath.basename(f))
+        if len(a) > 1:
+            name = a[1].encode('ascii')
+            name = name[1:len(name)]
+            userlist.append((name, 1))
+    
+    rdd = sc.parallelize(userlist)
+    error = rdd.reduceByKey(add).collect()
+    error = sorted(error, key=lambda x: x[1], reverse=True)
+    print '+',ntpath.basename(f)
+    i = 0
+    for e in error:
+        i=i+1
+        print '   -', (e[1], e[0])
+        if i==5:
+            break
 
+def question7(f1, f2, show=True):
+    s1 = question3(f1, False)
+    s2 = question3(f2, False)
 
-9
-lines = sc.textFile(input_text_file)
+    rdd2 = sc.parallelize((list(s1) + list(s2)))
+    r2 = rdd2.map(lambda x: (x, 1)).reduceByKey(add)
+    filt = r2.filter(lambda x:x[1]>1)
+    if(show):
+        print "  +"+str(filt.collectAsMap().keys())
+    return rdd2, r2
 
-cc = lines.count()
-print(cc)
-c = lines.filter(lambda x:x.find("Starting")!=-1 and x.find("Session")!=-1).collect()
-userset = set()
-for user in c:
-    a = user.split('user')
-    if len(a) > 1:
-        name = a[1].encode('ascii')
-        userset.add(name[1:len(name)-1])
+def question8(f1, f2):
+    s1 = question3(f1, False)
+    s2 = question3(f2, False)
+    rdd1 = sc.parallelize(list(s1))
+    rdd2 = sc.parallelize(list(s2))
+    r1map = rdd1.map(lambda x: (x,f1)).collectAsMap()
+    r2map = rdd2.map(lambda x: (x,f2)).collectAsMap()
+    r1map.update(r2map)
 
+    rdd = question7(f1, f2, False)
+    filt = rdd[1].filter(lambda x:x[1]==1)
+    value = filt.map(lambda x:(x[0], r1map.get(x[0])))
+    print "  +"+str(value.collect())
 
+def question9(f):
+    print("\n   + "+ntpath.basename(f)) + ":"
+    lines = sc.textFile(f)
+    c = lines.filter(lambda x:x.find("Starting")!=-1 and x.find("Session")!=-1).collect()
+    userset = set()
+    for user in c:
+        a = user.split('user')
+        if len(a) > 1:
+            name = a[1].encode('ascii')
+            userset.add(name[1:len(name)-1])
 
-userset = sorted(userset)
-orderlist = list()
-orderdict = dict()
-i = 0
-for name in userset:
-    orderdict.update({name: 'user-'+str(len(orderdict))})
-    orderlist.append((name, 'user-'+str(i)))
-    i = i+1
-print list(userset)
-print orderdict#sorted(orderdict)
+    userset = sorted(userset)
+    orderlist = list()
+    orderdict = dict()
+    i = 0
+    for name in userset:
+        orderdict.update({name: 'user-'+str(len(orderdict))})
+        orderlist.append((name, 'user-'+str(i)))
+        i = i+1
+    rdd = sc.parallelize(orderlist)
+    print "   . User name mapping: "+ str(rdd.collect())
+
+    def replaceLine(l):
+            for key in orderlist:
+                r = l.replace(key[0], key[1])
+                if r != l:
+                    return r
+            return l
+    newlines = lines.map(replaceLine)
 
 
-
-rdd = sc.parallelize(orderlist)
-print rdd.collect()
-
-def replaceLine(l):
-    # for l in lines.collect():
-        for key in orderlist:
-            # print l
-            r = l.replace(key[0], key[1])
-            # print l
-            # from fileinput import os
-            # from pyspark import SparkFiles
-            if r != l:
-                return r
-        return l
-            #     with open(os.path.join("output"), "a") as file1:
-            #         file1.write(l)
-
-# lines.saveAsNewAPIHadoopFile('output')
-# lines.foreach(replaceLine)
-newlines = lines.map(replaceLine)
+    newlines.saveAsTextFile(ntpath.basename(f)+"-anonymized-10")
+    newset = set()
+    rdd.foreach(lambda x:newset.add((x)))
+    print ". Anonymized files: "+ntpath.basename(f)+"-anonymized-10"
 
 
-newlines.saveAsTextFile('output')
-
-
-
-# newset = set()
-# rdd.foreach(lambda x:newset.add((x)))#, orderdict.get(x))))
-# print list(newset)
+if(question == '1-9'):
+    print("\n* Q1: line counts")
+    question1(input_text_file)
+    question1(input_text_file_2)
+    print("\n* Q2: sessions of user 'achille'")
+    question2(input_text_file)
+    question2(input_text_file_2)
+    print("\n* Q3: unique user names")
+    question3(input_text_file)
+    question3(input_text_file_2)
+    print("\n* Q4: sessions per user")
+    question4(input_text_file)
+    question4(input_text_file_2)
+    print("\n* Q5: number of errors")
+    question5(input_text_file)
+    question5(input_text_file_2)
+    print("\n* Q6: 5 most frequent error messagesr")
+    question6(input_text_file)
+    question6(input_text_file_2)
+    print("\n* Q7: users who started a session on both hosts, i.e., on exactly 2 hosts.")
+    question7(input_text_file, input_text_file_2)
+    print("\n* Q8: users who started a session on exactly one host, with host name.")
+    question8(input_text_file, input_text_file_2)
+    print("\n* Q8:")
+    question9(input_text_file)
+    question9(input_text_file_2)
+elif(int(question) == 1):
+    print("\n* Q1: line counts")
+    question1(input_text_file)
+    question1(input_text_file_2)
+elif(int(question) == 2):
+    print("\n* Q2: sessions of user 'achille'")
+    question2(input_text_file)
+    question2(input_text_file_2)
+elif(int(question) == 3):
+    print("\n* Q3: unique user names")
+    question3(input_text_file)
+    question3(input_text_file_2)
+elif(int(question) == 4):
+    print("\n* Q4: sessions per user")
+    question4(input_text_file)
+    question4(input_text_file_2)
+elif(int(question) == 5):
+    print("\n* Q5: number of errors")
+    question5(input_text_file)
+    question5(input_text_file_2)
+elif(int(question) == 6):
+    print("\n* Q6: 5 most frequent error messagesr")
+    question6(input_text_file)
+    question6(input_text_file_2)
+elif(int(question) == 7):
+    print("\n* Q7: users who started a session on both hosts, i.e., on exactly 2 hosts.")
+    question7(input_text_file, input_text_file_2)
+elif(int(question) == 8):
+    print("\n* Q8: users who started a session on exactly one host, with host name.")
+    question8(input_text_file, input_text_file_2)
+elif(int(question) == 9):
+    question9(input_text_file)
+    question9(input_text_file_2)
