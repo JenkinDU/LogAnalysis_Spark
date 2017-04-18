@@ -1,5 +1,8 @@
 # LogAnalysis_Spark
 
+* Spark : 2.1.0
+* Python : 2.7.12
+
 * chmod +x log_analyzer
 
 # Run
