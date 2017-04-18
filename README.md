@@ -3,9 +3,9 @@
 * Spark : 2.1.0
 * Python : 2.7.12
 
+# Run
 * chmod +x log_analyzer
 
-# Run
 * ./log_analyzer -q 1 iliad odyssey
 
 	...
